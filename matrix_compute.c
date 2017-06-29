@@ -786,9 +786,25 @@ abort:
     return ret;
 }
 
-char *ec_to_bit_by_len(ywb_uint64_t num, char *bit_string, ywb_uint32_t map_len) 
+void ec_string_reversion(ywb_uint8_t *bit_string, ywb_uint32_t string_len)
+{
+    ywb_uint32_t i = 0;
+    ywb_uint8_t temp = 0;
+    
+    for (i  = 0; i < string_len / 2; i++)
+    {
+        temp = bit_string[i];
+        bit_string[i] = bit_string[string_len - i - 1];
+        bit_string[string_len - i - 1] = temp;
+    }
+
+    return;
+}
+
+ywb_uint8_t *ec_to_bit_by_len(ywb_uint64_t num, ywb_uint8_t *bit_string, ywb_uint32_t map_len) 
 {
     ywb_int32_t i = 0;
+    ywb_uint32_t str_len = 0;
     ywb_uint64_t temp_num = num;
     ywb_uint8_t temp = 0; 
 
@@ -796,10 +812,15 @@ char *ec_to_bit_by_len(ywb_uint64_t num, char *bit_string, ywb_uint32_t map_len)
     
     for (i = 0; i < map_len; i++)
     {
-        temp = (temp_num & 0x0000000000000001) + 0x30;
-        bit_string[map_len - i - 1] = temp;
+        if (i && (0 == (i % 4))) bit_string[str_len++] = ' ';
+        
+        temp = (temp_num & 0x01) + 0x30;
+        bit_string[str_len++] = temp;
+        
         temp_num >>= 1;
     }
+
+    ec_string_reversion(bit_string, str_len);
     
     return bit_string;
 }
@@ -807,14 +828,16 @@ char *ec_to_bit_by_len(ywb_uint64_t num, char *bit_string, ywb_uint32_t map_len)
 void ec_printf_recover_table(ec_status_t *ec_status, ec_recover_table_t *recover_table)
 {
     ywb_uint32_t i = 0;
-    char bit_string0[65];    
-    char bit_string1[65];    
-    char bit_string2[65];    
-    char bit_string3[65];
+    ywb_uint8_t bit_string0[65+64/4];    
+    ywb_uint8_t bit_string1[65+64/4];    
+    ywb_uint8_t bit_string2[65+64/4];    
+    ywb_uint8_t bit_string3[65+64/4];
 
-    printf("ec_status:d_count:%u, p_count_%u, d_fault:%u, p_fault:%u, cost_time:%f(s).\n",
+    printf("ec_status:d_count:%u, p_count_%u, d_fault:%u, p_fault:%u, cost_time:%f(us).\n",
             ec_status->config.du_count, ec_status->config.count_pu,
-            ec_status->dfault_num, ec_status->num_pfault, recover_table->cost_sec);
+            ec_status->dfault_num, ec_status->num_pfault, recover_table->cost_sec*1000000);
+
+#if 0
     for (i = 0; i < recover_table->recover_num; i++)
     {
         printf("\t type[%s%s], index:%u,\n",
@@ -822,17 +845,19 @@ void ec_printf_recover_table(ec_status_t *ec_status, ec_recover_table_t *recover
                 EC_RECOVER_TYPE_PARITY == recover_table->recover_node[i].reco_type ? "parity":"",
                 recover_table->recover_node[i].index);
     }
+#endif
     
-#if 0            
+#if 1            
     for (i = 0; i < recover_table->recover_num; i++)
     {
-        printf("\t fault_type:%s%s, map_len:%u\n"
-               "\t\t bit_map1:%s.\n"
-               "\t\t bit_map2:%s.\n"
-               "\t\t bit_map3:%s.\n"
-               "\t\t bit_map4:%s.\n",
+        printf("\t fault_type:%s%s, index:%u, map_len:%u\n"
+               "\t\t bit_map1:%s\n"
+               "\t\t bit_map2:%s\n"
+               "\t\t bit_map3:%s\n"
+               "\t\t bit_map4:%s\n",
                EC_RECOVER_TYPE_DATA == recover_table->recover_node[i].reco_type ? "data":"",
                EC_RECOVER_TYPE_PARITY == recover_table->recover_node[i].reco_type ? "parity":"",
+               recover_table->recover_node[i].index,
                recover_table->recover_node[i].bitmap_len,
                ec_to_bit_by_len(recover_table->recover_node[i].recover_bitmap[0], bit_string0, recover_table->recover_node[i].bitmap_len),
                ec_to_bit_by_len(recover_table->recover_node[i].recover_bitmap[1], bit_string1, recover_table->recover_node[i].bitmap_len),
@@ -1480,7 +1505,7 @@ int main(int argc, char **argv)
     int ret = EC_OK;
     ywb_uint32_t i = 0; 
     
-#if 0
+#if 1
     ec_status_t ec_status;
     ec_recover_table_t recover_table;
     ywb_uint8_t *test_data = NULL;
@@ -1490,16 +1515,17 @@ int main(int argc, char **argv)
     memset(&recover_table, 0x0, sizeof(ec_recover_table_t));
 
     ec_status.config.bit_width = 4;
-    ec_status.config.du_count = 12;
+    ec_status.config.du_count = 7;
     ec_status.config.count_pu = 4;
 
-    ec_status.dfault_num = 1;
-    ec_status.dfault_array[0] = 2;
+    ec_status.dfault_num = 2;
+    ec_status.dfault_array[0] = 2;    
+    ec_status.dfault_array[1] = 4;
     
-    ec_status.num_pfault = 3;
+    ec_status.num_pfault = 2;
     ec_status.array_pfault[0] = 0;
     ec_status.array_pfault[1] = 2;
-    ec_status.array_pfault[2] = 3;
+    //ec_status.array_pfault[2] = 3;
 
     ret = ec_get_recover_table_by_ec_status(&ec_status, &recover_table);
     if (EC_OK != ret)
@@ -1530,7 +1556,7 @@ int main(int argc, char **argv)
         //ec_partiy_is_4_check(i, 4);
     }
 
-    ec_partiy_is_4_check(10, 4);
+    //ec_partiy_is_4_check(10, 4);
     
     return 0;
 }
