@@ -749,7 +749,7 @@ void ec_string_reversion(ywb_uint8_t *bit_string, ywb_uint32_t string_len)
     ywb_uint32_t i = 0;
     ywb_uint8_t temp = 0;
     
-    for (i  = 0; i < string_len / 2; i++)
+    for (i = 0; i < string_len/2; i++)
     {
         temp = bit_string[i];
         bit_string[i] = bit_string[string_len - i - 1];
@@ -766,7 +766,7 @@ ywb_uint8_t *ec_to_bit_by_len(ywb_uint64_t num, ywb_uint8_t *bit_string, ywb_uin
     ywb_uint64_t temp_num = num;
     ywb_uint8_t temp = 0; 
 
-    memset(bit_string, 0x0, map_len + 1);
+    memset(bit_string, 0x0, map_len + 1 + map_len/4);
     
     for (i = 0; i < map_len; i++)
     {
@@ -1473,7 +1473,7 @@ int main(int argc, char **argv)
     memset(&recover_table, 0x0, sizeof(ec_recover_table_t));
 
     ec_status.config.bit_width = 4;
-    ec_status.config.du_count = 7;
+    ec_status.config.du_count = 11;
     ec_status.config.count_pu = 4;
 
     ec_status.dfault_num = 2;
