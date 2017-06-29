@@ -285,48 +285,6 @@ void ec_create_recover_matrix_reset_lost_list(ec_lost_matrix_t *lost_matrix)
     return;
 }
 
-#if 0
-void ec_create_recover_matrix_for_parity_node(ec_lost_matrix_t *lost_matrix)
-{
-    ywb_int32_t i = 0;
-    ywb_int32_t j = 0;
-    ywb_uint32_t parity_start = 0;
-    ywb_uint32_t change_line = 0;
-    ywb_uint32_t matrix_line = lost_matrix->matrix_line;
-    ywb_uint32_t matrix_list = lost_matrix->matrix_list;
-    ywb_uint8_t *unitization = lost_matrix->unitization;
-    ywb_uint32_t unitization_size = lost_matrix->unitization_size;
-    ywb_uint8_t *change_matrix = lost_matrix->matrix;
-    ywb_uint8_t matrix_vaule = 0;
-
-    EC_ASSERT(NULL == change_matrix);
-    EC_ASSERT(NULL == unitization);
-    EC_ASSERT(unitization_size > matrix_line);
-    EC_ASSERT(matrix_line >= matrix_list);
-    
-    parity_start = matrix_list - matrix_line;
-
-    /*行数据交换，直接根据生成矩阵求解校验单元*/
-    for (i = 0; i < unitization_size; i++)
-    {
-        if ((parity_start + i) == unitization[i]) continue;
-
-        EC_ASSERT(unitization[i] <= parity_start);    
-        change_line = unitization[i] - parity_start;
-        
-        for (j = 0; j < matrix_list; j++)
-        {
-            matrix_vaule = change_matrix[change_line*matrix_list + j];
-            change_matrix[change_line*matrix_list + j] = change_matrix[i*matrix_list + j];
-            change_matrix[i*matrix_list + j] = matrix_vaule;
-        }
-    }
-
-    ec_create_recover_matrix_reset_lost_list(lost_matrix);
-    
-    return;
-}
-#endif
 
 void ec_create_recover_matrix_down_triangulation(ec_lost_matrix_t *lost_matrix)
 {
