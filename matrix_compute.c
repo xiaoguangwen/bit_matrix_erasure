@@ -14,8 +14,8 @@
 #define ec_free(prt)                    free(prt)
 #define EC_ASSERT(test)                 {if (test) assert(0);}
 
-//#define EC_PRE_SUB_UNIT                 MILLION_TO_BYTE(1)
-#define EC_PRE_SUB_UNIT                 32
+#define EC_PRE_SUB_UNIT                 KILO_TO_BYTE(4)
+//#define EC_PRE_SUB_UNIT                 32
 #define EC_XOR_TEMPLETE(A, B, RESULT) {RESULT = (A) ^ (B);}  
     
 
@@ -791,21 +791,12 @@ void ec_printf_recover_table(ec_status_t *ec_status, ec_recover_table_t *recover
     ywb_uint8_t bit_string2[65+64/4];    
     ywb_uint8_t bit_string3[65+64/4];
 
+#if 0            
+
     printf("ec_status:d_count:%u, p_count_%u, d_fault:%u, p_fault:%u, cost_time:%f(us).\n",
             ec_status->config.du_count, ec_status->config.count_pu,
             ec_status->dfault_num, ec_status->num_pfault, recover_table->cost_sec*1000000);
-
-#if 0
-    for (i = 0; i < recover_table->recover_num; i++)
-    {
-        printf("\t type[%s%s], index:%u,\n",
-                EC_RECOVER_TYPE_DATA == recover_table->recover_node[i].reco_type ? "data":"",
-                EC_RECOVER_TYPE_PARITY == recover_table->recover_node[i].reco_type ? "parity":"",
-                recover_table->recover_node[i].index);
-    }
-#endif
     
-#if 1            
     for (i = 0; i < recover_table->recover_num; i++)
     {
         printf("\t fault_type:%s%s, index:%u, map_len:%u\n"
@@ -1463,7 +1454,7 @@ int main(int argc, char **argv)
     int ret = EC_OK;
     ywb_uint32_t i = 0; 
     
-#if 1
+#if 0
     ec_status_t ec_status;
     ec_recover_table_t recover_table;
     ywb_uint8_t *test_data = NULL;
@@ -1492,29 +1483,30 @@ int main(int argc, char **argv)
     }
 
     ec_printf_recover_table(&ec_status, &recover_table);
-#endif
+#else
 
     for (i = 2; i <= MAX_DATA_UNIT; i++)
     {        
-        //ec_partiy_is_1_check(i, 1);
+        ec_partiy_is_1_check(i, 1);
     }
 
     for (i = 3; i <= MAX_DATA_UNIT; i++)
     {        
-        //ec_partiy_is_2_check(i, 2);
+        ec_partiy_is_2_check(i, 2);
     }
     
     for (i = 4; i <= MAX_DATA_UNIT; i++)
     {        
-       //ec_partiy_is_3_check(i, 3);
+       ec_partiy_is_3_check(i, 3);
     }
 
     for (i = 5; i <= MAX_DATA_UNIT; i++)
     {        
-        //ec_partiy_is_4_check(i, 4);
+        ec_partiy_is_4_check(i, 4);
     }
 
     //ec_partiy_is_4_check(10, 4);
-    
+#endif
+
     return 0;
 }
