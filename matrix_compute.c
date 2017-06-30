@@ -14,10 +14,11 @@
 #define ec_free(prt)                    free(prt)
 #define EC_ASSERT(test)                 {if (test) assert(0);}
 
-#define EC_PRE_SUB_UNIT                 KILO_TO_BYTE(4)
+#define EC_PRE_SUB_UNIT                 MILLION_TO_BYTE(1)
 //#define EC_PRE_SUB_UNIT                 32
 #define EC_XOR_TEMPLETE(A, B, RESULT) {RESULT = (A) ^ (B);}  
-    
+#define SIMPLE_TEST 1
+
 
 static const ywb_int8_t g_2_n_1_m[]  = {1,1};
 static const ywb_int8_t g_3_n_1_m[]  = {1,1,1};
@@ -791,9 +792,9 @@ void ec_printf_recover_table(ec_status_t *ec_status, ec_recover_table_t *recover
     ywb_uint8_t bit_string2[65+64/4];    
     ywb_uint8_t bit_string3[65+64/4];
 
-#if 0            
+#if SIMPLE_TEST            
 
-    printf("ec_status:d_count:%u, p_count_%u, d_fault:%u, p_fault:%u, cost_time:%f(us).\n",
+    printf("get recover table:ec_status:d_count:%u, p_count_%u, d_fault:%u, p_fault:%u, cost_time:%f(us).\n",
             ec_status->config.du_count, ec_status->config.count_pu,
             ec_status->dfault_num, ec_status->num_pfault, recover_table->cost_sec*1000000);
     
@@ -827,11 +828,26 @@ void ec_xor_orig_and_dst_data(ywb_uint8_t *orig, ywb_uint8_t *dst, ywb_uint64_t 
     
     EC_ASSERT(data_len < sizeof(ywb_uint64_t));
     EC_ASSERT(0 != data_len%sizeof(ywb_uint64_t));
-    
+
+#if SIMPLE_TEST
+    EC_ASSERT(0 != (change_length%8));
+    for (i = 0; i < change_length ; i+=8)
+    {    
+        EC_XOR_TEMPLETE(p_data_src[i], p_data_dst[i], p_data_src[i]);
+        EC_XOR_TEMPLETE(p_data_src[i+1], p_data_dst[i+1], p_data_src[i+1]);
+        EC_XOR_TEMPLETE(p_data_src[i+2], p_data_dst[i+2], p_data_src[i+2]);
+        EC_XOR_TEMPLETE(p_data_src[i+3], p_data_dst[i+3], p_data_src[i+3]);
+        EC_XOR_TEMPLETE(p_data_src[i+4], p_data_dst[i+4], p_data_src[i+4]);
+        EC_XOR_TEMPLETE(p_data_src[i+5], p_data_dst[i+5], p_data_src[i+5]);
+        EC_XOR_TEMPLETE(p_data_src[i+6], p_data_dst[i+6], p_data_src[i+6]);
+        EC_XOR_TEMPLETE(p_data_src[i+7], p_data_dst[i+7], p_data_src[i+7]);
+    }
+#else
     for (i = 0; i < change_length ; i++)
     {
         EC_XOR_TEMPLETE(p_data_src[i], p_data_dst[i], p_data_src[i]);    
     }
+#endif
 
     return;
 }
@@ -1449,40 +1465,94 @@ void ec_partiy_is_1_check(ywb_uint32_t n , ywb_uint32_t m)
 }
 
 
+void ec_simple_test(ec_status_t *ec_status)
+{
+    int ret = EC_OK;
+    ywb_uint8_t *data =  NULL;
+    ywb_uint64_t data_len = 0;
+    ywb_uint32_t n = ec_status->config.du_count;
+    ywb_uint32_t m = ec_status->config.count_pu; 
+    ywb_uint32_t index = 0;
+    ec_recover_table_t recover_table;
+    ywb_uint8_t *recover_data = NULL;
+    ywb_uint64_t recover_len = 0;
+    ywb_uint64_t data_skip = 0;
+    ywb_uint64_t recover_skip = 0;
+    struct timeval time_start, time_end;
+    struct timezone time_zone;
+    double cost_sec = 0;
+
+    EC_ASSERT(n <= m);
+
+    memset(&recover_table, 0x0, sizeof(ec_recover_table_t));
+
+    ret = ec_create_m_n_data_and_complute_parity(n, m, &data, &data_len);
+    EC_ASSERT(EC_OK != ret);
+
+    EC_ASSERT(NULL == data);
+    EC_ASSERT(data_len != (n + m) * BIT_WIDTH * EC_PRE_SUB_UNIT);
+
+    ret = ec_get_recover_table_by_ec_status(ec_status, &recover_table);
+    EC_ASSERT(EC_OK != ret);
+
+    ec_printf_recover_table(ec_status, &recover_table);
+
+    gettimeofday(&time_start, &time_zone);
+
+    ret = ec_get_recover_data_by_recover_table(ec_status, &recover_table,
+                                               data, data_len, &recover_data, &recover_len);
+    EC_ASSERT(EC_OK != ret);
+
+    gettimeofday(&time_end, &time_zone);
+    cost_sec += time_end.tv_usec;
+    cost_sec -= time_start.tv_usec;
+    cost_sec /= 1000000.0;
+    cost_sec += time_end.tv_sec;
+    cost_sec -= time_start.tv_sec;
+
+    for (index = 0; index < recover_table.recover_num; index++)
+    {
+        data_skip = EC_RECOVER_TYPE_DATA == recover_table.recover_node[index].reco_type ? \
+                    recover_table.recover_node[index].index :\
+                    recover_table.recover_node[index].index + n;
+        data_skip = data_skip * BIT_WIDTH * EC_PRE_SUB_UNIT;
+        recover_skip = index * BIT_WIDTH * EC_PRE_SUB_UNIT;
+        
+        ret = memcmp(data + data_skip, recover_data + recover_skip, BIT_WIDTH * EC_PRE_SUB_UNIT);
+        EC_ASSERT(0 != ret);
+    }
+
+    printf("recover data: d_count:%u, p_count_%u, d_fault:%u, p_fault:%u, recover_time:%f(ms), ec_unit_size:%llu.\n",
+            ec_status->config.du_count, ec_status->config.count_pu,
+            ec_status->dfault_num, ec_status->num_pfault, cost_sec*1000, EC_PRE_SUB_UNIT);
+
+    return;
+}
+
 int main(int argc, char **argv)
 {
     int ret = EC_OK;
     ywb_uint32_t i = 0; 
     
-#if 0
+#if SIMPLE_TEST
     ec_status_t ec_status;
-    ec_recover_table_t recover_table;
-    ywb_uint8_t *test_data = NULL;
-    ywb_uint64_t data_len = 0;
     
     memset(&ec_status, 0x0, sizeof(ec_status_t));
-    memset(&recover_table, 0x0, sizeof(ec_recover_table_t));
 
     ec_status.config.bit_width = 4;
-    ec_status.config.du_count = 11;
-    ec_status.config.count_pu = 4;
+    ec_status.config.du_count = 4;
+    ec_status.config.count_pu = 1;
 
-    ec_status.dfault_num = 2;
-    ec_status.dfault_array[0] = 2;    
-    ec_status.dfault_array[1] = 4;
+    ec_status.dfault_num = 1;
+    ec_status.dfault_array[0] = 3;    
+    //ec_status.dfault_array[1] = 2;
     
-    ec_status.num_pfault = 2;
-    ec_status.array_pfault[0] = 0;
-    ec_status.array_pfault[1] = 2;
-    //ec_status.array_pfault[2] = 3;
+    //ec_status.num_pfault = 2;
+    //ec_status.array_pfault[0] = 0;
+    //ec_status.array_pfault[1] = 2;
 
-    ret = ec_get_recover_table_by_ec_status(&ec_status, &recover_table);
-    if (EC_OK != ret)
-    {
-        ec_log("Faield to get recover table, ret:%d");
-    }
-
-    ec_printf_recover_table(&ec_status, &recover_table);
+    ec_simple_test(&ec_status);
+    
 #else
 
     for (i = 2; i <= MAX_DATA_UNIT; i++)
