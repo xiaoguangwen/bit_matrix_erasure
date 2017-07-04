@@ -14,10 +14,10 @@
 #define ec_free(prt)                    free(prt)
 #define EC_ASSERT(test)                 {if (test) assert(0);}
 
-#define EC_PRE_SUB_UNIT                 MILLION_TO_BYTE(1)
-//#define EC_PRE_SUB_UNIT                 32
+//#define EC_PRE_SUB_UNIT                 MILLION_TO_BYTE(1)
+#define EC_PRE_SUB_UNIT                 32
 #define EC_XOR_TEMPLETE(A, B, RESULT) {RESULT = (A) ^ (B);}  
-#define SIMPLE_TEST 1
+#define SIMPLE_TEST 0
 
 
 static const ywb_int8_t g_2_n_1_m[]  = {1,1};
@@ -1541,11 +1541,11 @@ int main(int argc, char **argv)
 
     ec_status.config.bit_width = 4;
     ec_status.config.du_count = 4;
-    ec_status.config.count_pu = 1;
+    ec_status.config.count_pu = 2;
 
-    ec_status.dfault_num = 1;
-    ec_status.dfault_array[0] = 3;    
-    //ec_status.dfault_array[1] = 2;
+    ec_status.dfault_num = 2;
+    ec_status.dfault_array[0] = 1;    
+    ec_status.dfault_array[1] = 2;
     
     //ec_status.num_pfault = 2;
     //ec_status.array_pfault[0] = 0;
@@ -1575,7 +1575,6 @@ int main(int argc, char **argv)
         ec_partiy_is_4_check(i, 4);
     }
 
-    //ec_partiy_is_4_check(10, 4);
 #endif
 
     return 0;
