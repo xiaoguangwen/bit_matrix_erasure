@@ -14,10 +14,10 @@
 #define ec_free(prt)                    free(prt)
 #define EC_ASSERT(test)                 {if (test) assert(0);}
 
-//#define EC_PRE_SUB_UNIT                 MILLION_TO_BYTE(1)
-#define EC_PRE_SUB_UNIT                 32
+#define EC_PRE_SUB_UNIT                 MILLION_TO_BYTE(1)
+//#define EC_PRE_SUB_UNIT                 KILO_TO_BYTE(1)
 #define EC_XOR_TEMPLETE(A, B, RESULT) {RESULT = (A) ^ (B);}  
-#define SIMPLE_TEST 0
+#define SIMPLE_TEST 1
 
 
 static const ywb_int8_t g_2_n_1_m[]  = {1,1};
@@ -441,8 +441,50 @@ void ec_create_recover_matrix_up_triangulation(ec_lost_matrix_t *lost_matrix)
     return;    
 }
 
-void ec_create_recover_matrix_by_unitization_list(ec_lost_matrix_t *lost_matrix)
+void ec_create_recover_matrix_by_uncorrelation_lost_matrix(ec_status_t *ec_status,
+                                                                          ec_lost_matrix_t *lost_matrix)
 {
+    ywb_uint32_t i = 0;
+    ywb_uint32_t j = 0;
+    ywb_uint32_t src_line = 0;
+    ywb_uint32_t dst_line = 0;
+    ywb_uint32_t matrix_line = lost_matrix->matrix_line;
+    ywb_uint32_t matrix_list = lost_matrix->matrix_list;
+    ywb_uint8_t *change_matrix = lost_matrix->matrix;
+    ywb_uint8_t matrix_vaule = 0;
+    
+    EC_ASSERT(NULL == ec_status);
+    EC_ASSERT(NULL == lost_matrix);
+
+    if (ec_status->num_pfault > 0)
+    {
+        for (i = 0; i < ec_status->num_pfault; i++)
+        {
+            if (ec_status->dfault_num + i < ec_status->array_pfault[i])
+            {
+                src_line = ec_status->dfault_num + i;
+                dst_line = ec_status->array_pfault[i];
+
+                for (j = 0; j < matrix_list; j++)
+                {
+                    matrix_vaule = change_matrix[src_line*matrix_list + j];
+                    change_matrix[src_line*matrix_list + j] = change_matrix[dst_line*matrix_list + j];
+                    change_matrix[dst_line*matrix_list + j] = matrix_vaule;
+                }
+            }
+        }
+    }
+
+    return;
+}
+
+void ec_create_recover_matrix_by_unitization_list(ec_status_t *ec_status,
+                                                               ec_lost_matrix_t *lost_matrix)
+{
+
+    /*行交换，让参与计算的失效节点矩阵行线性无关*/
+    ec_create_recover_matrix_by_uncorrelation_lost_matrix(ec_status, lost_matrix);
+
     /*失效节点上三角化，在伽罗瓦域运算*/
     ec_create_recover_matrix_down_triangulation(lost_matrix);
 
@@ -653,42 +695,6 @@ void ec_create_recover_table_by_lost_matrix(ec_lost_matrix_t *lost_matrix,
     return;    
 }
 
-void ec_create_recover_matrix_by_uncorrelation_lost_matrix(ec_status_t *ec_status,
-                                                                          ec_lost_matrix_t *lost_matrix)
-{
-    ywb_uint32_t i = 0;
-    ywb_uint32_t j = 0;
-    ywb_uint32_t src_line = 0;
-    ywb_uint32_t dst_line = 0;
-    ywb_uint32_t matrix_line = lost_matrix->matrix_line;
-    ywb_uint32_t matrix_list = lost_matrix->matrix_list;
-    ywb_uint8_t *change_matrix = lost_matrix->matrix;
-    ywb_uint8_t matrix_vaule = 0;
-    
-    EC_ASSERT(NULL == ec_status);
-    EC_ASSERT(NULL == lost_matrix);
-
-    if (ec_status->num_pfault > 0)
-    {
-        for (i = 0; i < ec_status->num_pfault; i++)
-        {
-            if (ec_status->dfault_num + i < ec_status->array_pfault[i])
-            {
-                src_line = ec_status->dfault_num + i;
-                dst_line = ec_status->array_pfault[i];
-
-                for (j = 0; j < matrix_list; j++)
-                {
-                    matrix_vaule = change_matrix[src_line*matrix_list + j];
-                    change_matrix[src_line*matrix_list + j] = change_matrix[dst_line*matrix_list + j];
-                    change_matrix[dst_line*matrix_list + j] = matrix_vaule;
-                }
-            }
-        }
-    }
-
-    return;
-}
 
 int ec_get_recover_table_by_ec_status(ec_status_t *ec_status, ec_recover_table_t *recover_table)
 {
@@ -720,11 +726,8 @@ int ec_get_recover_table_by_ec_status(ec_status_t *ec_status, ec_recover_table_t
         goto abort;
     }
 
-    /*行交换，让参与计算的失效节点矩阵行线性无关*/
-    ec_create_recover_matrix_by_uncorrelation_lost_matrix(ec_status, &lost_matrix);
-
     /*失效矩阵单位化，完成其他行初等变化(计算都是在伽罗瓦域进行)*/
-    ec_create_recover_matrix_by_unitization_list(&lost_matrix);
+    ec_create_recover_matrix_by_unitization_list(ec_status, &lost_matrix);
 
     /*生成失效节点恢复信息*/
     ec_create_recover_table_by_lost_matrix(&lost_matrix, &temp_table);
@@ -852,6 +855,26 @@ void ec_xor_orig_and_dst_data(ywb_uint8_t *orig, ywb_uint8_t *dst, ywb_uint64_t 
     return;
 }
 
+void *ec_xor_data_by_config(void *argv)
+{
+    struct ec_pthread_var *pthread_var = argv;
+    ywb_uint32_t i = 0;
+    ywb_uint8_t *dst_data = NULL;
+    ywb_uint8_t *recover_data = pthread_var->recover_data;
+    ywb_uint64_t recover_bitmap = pthread_var->recover_bitmap;
+    
+    for (i = 0 ; i < pthread_var->bitmap_len; i++)
+    {
+        dst_data = pthread_var->orig_data + i*pthread_var->data_len;
+        
+        if(recover_bitmap&0x01) ec_xor_orig_and_dst_data(recover_data, dst_data, pthread_var->data_len);
+
+        recover_bitmap >>= 1;
+    }    
+
+    return;
+}
+
 void ec_get_recover_data_by_recover_node(ec_status_t *ec_status, ec_recover_node_t *recover_node,
                                                        ywb_uint8_t *orig_data, ywb_uint64_t data_len,
                                                        ywb_uint8_t *recover_data, ywb_uint64_t recover_len)
@@ -860,6 +883,8 @@ void ec_get_recover_data_by_recover_node(ec_status_t *ec_status, ec_recover_node
     ec_recover_node_t node;   
     ywb_uint64_t data_skip = 0;
     ywb_uint8_t *dst_data = NULL;
+    struct ec_pthread_var pthread_var[BIT_WIDTH];
+    pthread_t thread_tid[BIT_WIDTH] = {0};
 
     EC_ASSERT(NULL == ec_status);
     EC_ASSERT(NULL == recover_node);
@@ -869,8 +894,24 @@ void ec_get_recover_data_by_recover_node(ec_status_t *ec_status, ec_recover_node
     EC_ASSERT(recover_node->bitmap_len != (ec_status->config.count_pu + ec_status->config.du_count)*BIT_WIDTH);
 
     memcpy(&node, recover_node, sizeof(ec_recover_node_t));
-    
-    for (i = 0 ; i < recover_node->bitmap_len; i++)
+
+    for (i = 0; i < BIT_WIDTH; i++)
+    {
+        pthread_var[i].bitmap_len = node.bitmap_len;
+        pthread_var[i].recover_bitmap = node.recover_bitmap[i];
+        pthread_var[i].recover_data = recover_data + i*EC_PRE_SUB_UNIT;
+        pthread_var[i].orig_data = orig_data;
+        pthread_var[i].data_len = EC_PRE_SUB_UNIT;
+        pthread_create(&thread_tid[i], NULL, ec_xor_data_by_config, &pthread_var[i]);
+    }
+
+    for (i = 0; i < BIT_WIDTH; i++)
+    {
+        pthread_join(thread_tid[i], NULL);
+    }
+
+#if 0    
+    for (i = 0 ; i < node.bitmap_len; i++)
     {
         dst_data = orig_data + i*EC_PRE_SUB_UNIT;
         
@@ -884,6 +925,7 @@ void ec_get_recover_data_by_recover_node(ec_status_t *ec_status, ec_recover_node
         node.recover_bitmap[2] >>= 1;
         node.recover_bitmap[3] >>= 1;
     }
+#endif
 
     return;
 }
@@ -1543,13 +1585,13 @@ int main(int argc, char **argv)
     ec_status.config.du_count = 4;
     ec_status.config.count_pu = 2;
 
-    ec_status.dfault_num = 2;
-    ec_status.dfault_array[0] = 1;    
-    ec_status.dfault_array[1] = 2;
+    //ec_status.dfault_num = 2;
+    //ec_status.dfault_array[0] = 1;    
+    //ec_status.dfault_array[1] = 2;
     
-    //ec_status.num_pfault = 2;
-    //ec_status.array_pfault[0] = 0;
-    //ec_status.array_pfault[1] = 2;
+    ec_status.num_pfault = 2;
+    ec_status.array_pfault[0] = 0;
+    ec_status.array_pfault[1] = 1;
 
     ec_simple_test(&ec_status);
     

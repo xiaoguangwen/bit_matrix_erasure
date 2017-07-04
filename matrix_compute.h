@@ -125,6 +125,15 @@ typedef struct ec_lost_matrix
     ywb_uint32_t unitization_size;
 }ec_lost_matrix_t;
 
+typedef struct ec_pthread_var
+{
+    ywb_uint8_t bitmap_len; 
+    ywb_uint64_t recover_bitmap;
+    ywb_uint8_t *recover_data;
+    ywb_uint8_t *orig_data;
+    ywb_uint64_t data_len;
+}ec_pthread_var_t;
+
 int ec_get_recover_table_by_ec_status(ec_status_t *ec_status, 
                                                 ec_recover_table_t *recover_table);
 
