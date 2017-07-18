@@ -1617,7 +1617,7 @@ int main(int argc, char **argv)
         ec_partiy_is_4_check(i, 4);
     }
 
-#endif
+#endif 
 
     return 0;
 }
