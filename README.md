@@ -53,3 +53,4 @@ ec_status:d_count:7, p_count_4, d_fault:2, p_fault:2, cost_time:57.935715(us).
 	2、第二个数据节点第一个数据子块恢复bitmap，每4位代表一个数据块，每4位中一个位为1表示数据块中第i个子块要参与异或校验
         3、如果有更好的建议和欢迎交流:QQ510539763
 ```	
+<a href="https://info.flagcounter.com/LsRc"><img src="https://s11.flagcounter.com/count2/LsRc/bg_FFFFFF/txt_000000/border_CCCCCC/columns_2/maxflags_10/viewers_0/labels_0/pageviews_0/flags_0/percent_0/" alt="Flag Counter" border="0"></a>
