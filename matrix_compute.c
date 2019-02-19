@@ -20,7 +20,8 @@
 #define SIMPLE_TEST 1
 
 
-static const ywb_int8_t g_2_n_1_m[]  = {1,1};
+/*编码矩阵*/
+static const ywb_int8_t g_2_n_1_m[]  = {1,1};									/*2数据节点、1个校验节点*/
 static const ywb_int8_t g_3_n_1_m[]  = {1,1,1};
 static const ywb_int8_t g_4_n_1_m[]  = {1,1,1,1};
 static const ywb_int8_t g_5_n_1_m[]  = {1,1,1,1,1};
@@ -33,7 +34,7 @@ static const ywb_int8_t g_11_n_1_m[] = {1,1,1,1,1,1,1,1,1,1,1};
 static const ywb_int8_t g_12_n_1_m[] = {1,1,1,1,1,1,1,1,1,1,1,1};
 
 
-static const ywb_int8_t g_3_n_2_m[]  = {1,1,1,   					1,2,9};
+static const ywb_int8_t g_3_n_2_m[]  = {1,1,1,   					1,2,9};		/*3数据节点、2个校验节点*/
 static const ywb_int8_t g_4_n_2_m[]  = {1,1,1,1, 					1,2,9,4};
 static const ywb_int8_t g_5_n_2_m[]  = {1,1,1,1,1,				    1,2,9,4,8};
 static const ywb_int8_t g_6_n_2_m[]  = {1,1,1,1,1,1,				1,2,9,4,8,13,};
@@ -45,7 +46,7 @@ static const ywb_int8_t g_11_n_2_m[] = {1,1,1,1,1,1,1,1,1,1,1,	    1,2,9,4,8,13,
 static const ywb_int8_t g_12_n_2_m[] = {1,1,1,1,1,1,1,1,1,1,1,1,	1,2,9,4,8,13,3,6,12,5,11,15};
 
 
-static const ywb_int8_t g_4_n_3_m[]  = {1,1,1,1,					1,12,8,11,						12,9,1,6};
+static const ywb_int8_t g_4_n_3_m[]  = {1,1,1,1,					1,12,8,11,						12,9,1,6};			/*4数据节点、3个校验节点*/
 static const ywb_int8_t g_5_n_3_m[]  = {1,1,1,1,1,				    13,3,2,6,1,						12,9,1,6,3};
 static const ywb_int8_t g_6_n_3_m[]  = {1,1,1,1,1,1,				9,6,4,12,2,1,					1,5,10,9,13,6};
 static const ywb_int8_t g_7_n_3_m[]  = {1,1,1,1,1,1,1,			    13,3,2,6,1,9,12,				1,5,10,9,13,6,8};
@@ -56,7 +57,7 @@ static const ywb_int8_t g_11_n_3_m[] = {1,1,1,1,1,1,1,1,1,1,1,	    13,3,2,6,1,9,
 static const ywb_int8_t g_12_n_3_m[] = {1,1,1,1,1,1,1,1,1,1,1,1,	13,3,2,6,1,9,12,15,5,8,4,10,	1,5,10,9,13,6,8,4,3,12,15,2};
 
 
-static const ywb_int8_t g_5_n_4_m[]  = {1,1,1,1,1,					8,1,3,9,13,						1,2,12,6,15,					9,7,3,1,8};
+static const ywb_int8_t g_5_n_4_m[]  = {1,1,1,1,1,					8,1,3,9,13,						1,2,12,6,15,					9,7,3,1,8};		/*5数据节点、4个校验节点*/
 static const ywb_int8_t g_6_n_4_m[]  = {1,1,1,1,1,1,				8,1,3,9,13,6,					8,3,10,5,1,13,					4,13,11,8,12,1};
 static const ywb_int8_t g_7_n_4_m[]  = {1,1,1,1,1,1,1,				6,4,12,2,1,11,13,				12,11,15,14,8,2,1,				4,13,11,8,12,1,6};
 static const ywb_int8_t g_8_n_4_m[]  = {1,1,1,1,1,1,1,1,			3,2,6,1,9,12,15,5,				6,12,14,7,4,1,9,2,				4,13,11,8,12,1,6,9};
@@ -65,19 +66,12 @@ static const ywb_int8_t g_10_n_4_m[] = {1,1,1,1,1,1,1,1,1,1,		8,1,3,9,13,6,14,11
 static const ywb_int8_t g_11_n_4_m[] = {1,1,1,1,1,1,1,1,1,1,1,		8,1,3,9,13,6,14,11,4,2,5,		6,12,14,7,4,1,9,2,8,10,13,		4,13,11,8,12,1,6,9,3,15,5};
 static const ywb_int8_t g_12_n_4_m[] = {1,1,1,1,1,1,1,1,1,1,1,1,	2,13,4,15,14,8,10,6,1,9,12,5,	6,12,14,7,4,1,9,2,8,10,13,11,	4,13,11,8,12,1,6,9,3,15,5,2};	
 
-#if 0
-static const ywb_int8_t g_6_n_5_m[]  = {1,1,1,1,1,1,				4,12,2,1,11,13,					7,1,9,12,3,8,					5,4,13,2,7,1,					7,12,5,9,8,1};
-static const ywb_int8_t g_7_n_5_m[]  = {1,1,1,1,1,1,1,				2,6,1,9,12,15,5,				12,14,7,4,1,9,2,				13,11,8,12,1,6,9,				1,14,13,3,5,6,4};
-static const ywb_int8_t g_8_n_5_m[]  = {1,1,1,1,1,1,1,1,			2,6,1,9,12,15,5,8,				12,14,7,4,1,9,2,8,				13,11,8,12,1,6,9,3,				3,1,4,5,15,10,12,9};
-static const ywb_int8_t g_9_n_5_m[]  = {1,1,1,1,1,1,1,1,1,			2,6,1,9,12,15,5,8,4,			6,7,10,2,9,13,1,4,5,			9,5,3,11,2,12,1,6,13,			7,12,5,9,8,1,15,6,2};
-static const ywb_int8_t g_10_n_5_m[] = {1,1,1,1,1,1,1,1,1,1,		1,3,9,13,6,14,11,4,2,5,			7,1,9,12,3,8,6,11,13,4,			11,2,15,1,10,9,5,13,12,4,		5,3,12,15,2,13,7,8,9,4};
-static const ywb_int8_t g_11_n_5_m[] = {1,1,1,1,1,1,1,1,1,1,1,		2,6,1,9,12,15,5,8,4,10,14,		14,2,1,11,6,3,12,5,9,8,15,		13,11,8,12,1,6,9,3,15,5,2,		5,3,12,15,2,13,7,8,9,4,6};
-#endif
 
 static const ywb_uint8_t galois_log_table_2_power_4[GALOIS_SPACE] = {1, 2, 4, 8, 3, 6, 12, 11, 5, 10, 7, 14, 15, 13, 9, 1};
     
 static const ywb_uint8_t ilog_galois_table_2_power_4[GALOIS_SPACE] = {0, 0, 1, 4, 2, 8, 5, 10, 3, 14, 9, 7, 6, 13, 11, 12};
 
+/*数据节点和校验节点的组合矩阵*/
 static const ywb_uint8_t *matrix_table[MAX_PARITY_UNIT+1][MAX_DATA_UNIT+1] = 
 {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL},
  {NULL, NULL, g_2_n_1_m, g_3_n_1_m, g_4_n_1_m, g_5_n_1_m, g_6_n_1_m, g_7_n_1_m, g_8_n_1_m, g_9_n_1_m, g_10_n_1_m, g_11_n_1_m, g_12_n_1_m},
@@ -85,6 +79,7 @@ static const ywb_uint8_t *matrix_table[MAX_PARITY_UNIT+1][MAX_DATA_UNIT+1] =
  {NULL, NULL, NULL, NULL, g_4_n_3_m, g_5_n_3_m, g_6_n_3_m, g_7_n_3_m, g_8_n_3_m, g_9_n_3_m, g_10_n_3_m, g_11_n_3_m, g_12_n_3_m},
  {NULL, NULL, NULL, NULL, NULL, g_5_n_4_m, g_6_n_4_m, g_7_n_4_m, g_8_n_4_m, g_9_n_4_m, g_10_n_4_m, g_11_n_4_m, g_12_n_4_m}};
 
+/*检查编码矩阵是否有效*/
 void ec_static_matrix_table_check(void)
 {
     ywb_uint32_t line = 0;
@@ -120,6 +115,7 @@ void ec_static_matrix_table_check(void)
     return;
 }
 
+/*检查纠删码配置是否正确:数据节点个数、编码节点个数*/
 int ec_data_parity_config_check(  ec_config_t *config)
 {
     int ret = EC_OK;
@@ -243,6 +239,7 @@ abort:
     return ret;
 }
 
+/*根据配置获取编码矩阵*/
 ywb_uint8_t *ec_get_encode_matrix_table(ywb_uint8_t data_num, ywb_uint8_t parity_num)
 {
     EC_ASSERT(data_num > MAX_DATA_UNIT);
@@ -520,7 +517,8 @@ int ec_prepare_get_recover_table(ec_status_t *ec_status,
     }
 
     encode_matrix = ec_get_encode_matrix_table(ec_status->config.du_count, ec_status->config.count_pu);
-    if (NULL == encode_matrix)
+    if (NULL == encode_matrix)
+
     {
         ret = EC_ERROR_CODE_NOT_GET_MATRIX;
 
@@ -695,7 +693,7 @@ void ec_create_recover_table_by_lost_matrix(ec_lost_matrix_t *lost_matrix,
     return;    
 }
 
-
+/*根据传入的ec配置获取数据恢复矩阵*/
 int ec_get_recover_table_by_ec_status(ec_status_t *ec_status, ec_recover_table_t *recover_table)
 {
     int ret = EC_OK;
@@ -796,7 +794,7 @@ void ec_printf_recover_table(ec_status_t *ec_status, ec_recover_table_t *recover
     ywb_uint8_t bit_string3[65+64/4];
 
 #if SIMPLE_TEST            
-
+	/*打印恢复数据的二进制矩阵 <也可打印编码二进制矩阵>*/
     printf("get recover table:ec_status:d_count:%u, p_count_%u, d_fault:%u, p_fault:%u, cost_time:%f(us).\n",
             ec_status->config.du_count, ec_status->config.count_pu,
             ec_status->dfault_num, ec_status->num_pfault, recover_table->cost_sec*1000000);
@@ -930,6 +928,7 @@ void ec_get_recover_data_by_recover_node(ec_status_t *ec_status, ec_recover_node
     return;
 }
 
+/*根据恢复矩阵获取丢失数据*/
 int ec_get_recover_data_by_recover_table(ec_status_t *ec_status, ec_recover_table_t *recover_table, 
                                                         ywb_uint8_t *orig_data, ywb_uint64_t data_len,
                                                         ywb_uint8_t **recover_data, ywb_uint64_t *recover_len)
@@ -1035,6 +1034,7 @@ abort:
     return ret;
 }
 
+/*测试程序*/
 int ec_create_m_n_data_and_complute_parity(ywb_uint32_t n, ywb_uint32_t m, 
                                                            ywb_uint8_t **test_data, ywb_uint64_t *data_len)
 {
@@ -1101,6 +1101,7 @@ abort:
     return ret;
 }
 
+/*测试程序*/
 void ec_exhaustion_n_m_fault_is_equal_1(ywb_uint32_t n , ywb_uint32_t m, 
                                                   ywb_uint8_t *data, ywb_uint64_t data_len)
 {
@@ -1161,6 +1162,7 @@ void ec_exhaustion_n_m_fault_is_equal_1(ywb_uint32_t n , ywb_uint32_t m,
     return;
 }
 
+/*测试程序*/
 void ec_exhaustion_n_m_fault_less_than_equal_2(ywb_uint32_t n , ywb_uint32_t m, 
                                                                 ywb_uint8_t *data, ywb_uint64_t data_len)
 {
@@ -1232,6 +1234,7 @@ void ec_exhaustion_n_m_fault_less_than_equal_2(ywb_uint32_t n , ywb_uint32_t m,
     return;
 }
 
+/*测试程序*/
 void ec_exhaustion_n_m_fault_less_than_equal_3(ywb_uint32_t n , ywb_uint32_t m, 
                                                             ywb_uint8_t *data, ywb_uint64_t data_len)
 {
@@ -1312,6 +1315,7 @@ void ec_exhaustion_n_m_fault_less_than_equal_3(ywb_uint32_t n , ywb_uint32_t m,
     return;    
 }
 
+/*测试程序*/
 void ec_exhaustion_n_m_fault_less_than_equal_4(ywb_uint32_t n , ywb_uint32_t m, 
                                                                ywb_uint8_t *data, ywb_uint64_t data_len)
 {
@@ -1320,7 +1324,7 @@ void ec_exhaustion_n_m_fault_less_than_equal_4(ywb_uint32_t n , ywb_uint32_t m,
     ywb_uint32_t i = 0;
     ywb_uint32_t j = 0;
     ywb_uint32_t k = 0;
-    ywb_uint32_t l = 0;
+    ywb_uint32_t l = 0;x
     ywb_uint32_t index = 0;
     ec_status_t ec_status;
     ec_recover_table_t recover_table;
@@ -1402,6 +1406,7 @@ void ec_exhaustion_n_m_fault_less_than_equal_4(ywb_uint32_t n , ywb_uint32_t m,
     return;
 }
 
+/*测试程序:穷举失效个节点小于等于4的情况*/
 void ec_partiy_is_4_check(ywb_uint32_t n , ywb_uint32_t m)
 {
     int ret = EC_OK;
@@ -1428,6 +1433,7 @@ void ec_partiy_is_4_check(ywb_uint32_t n , ywb_uint32_t m)
     return;
 }
 
+/*测试程序:穷举失效个节点小于等于3的情况*/
 void ec_partiy_is_3_check(ywb_uint32_t n , ywb_uint32_t m)
 {
     int ret = EC_OK;
@@ -1454,6 +1460,7 @@ void ec_partiy_is_3_check(ywb_uint32_t n , ywb_uint32_t m)
     return;
 }
 
+/*测试程序:穷举失效个节点小于等于2的情况*/
 void ec_partiy_is_2_check(ywb_uint32_t n , ywb_uint32_t m)
 {
     int ret = EC_OK;
@@ -1480,6 +1487,7 @@ void ec_partiy_is_2_check(ywb_uint32_t n , ywb_uint32_t m)
     return;
 }
 
+/*测试程序:穷举失效个节点小于等于1的情况*/
 void ec_partiy_is_1_check(ywb_uint32_t n , ywb_uint32_t m)
 {
     int ret = EC_OK;
@@ -1506,7 +1514,7 @@ void ec_partiy_is_1_check(ywb_uint32_t n , ywb_uint32_t m)
     return;
 }
 
-
+/*各种失效情况的检查API:参数说明见README*/
 void ec_simple_test(ec_status_t *ec_status)
 {
     int ret = EC_OK;
@@ -1580,38 +1588,56 @@ int main(int argc, char **argv)
     ec_status_t ec_status;
     
     memset(&ec_status, 0x0, sizeof(ec_status_t));
-
+    
+    //du_count表示数据节点4个，count_pu表示校验节点2个，校验宽度为4<表示单个数据块需要被分成4份>
     ec_status.config.bit_width = 4;
     ec_status.config.du_count = 4;
     ec_status.config.count_pu = 2;
 
+    //表示：有两个数据失效节点，节点标号为第1个和第2个<起始编号为0>
+    //特别：由于校验数是2，最大的失效节点数是2
     //ec_status.dfault_num = 2;
     //ec_status.dfault_array[0] = 1;    
     //ec_status.dfault_array[1] = 2;
-    
-    ec_status.num_pfault = 2;
-    ec_status.array_pfault[0] = 0;
-    ec_status.array_pfault[1] = 1;
+    /*--------测试程序：检查数据恢复情况-------*/
+    //ec_simple_test(&ec_status);
 
-    ec_simple_test(&ec_status);
-    
+    //表示：有两个校验失效节点，节点标号为第0个和第1个<起始编号为0>
+    //特别：其实就是计算校验节点
+    //ec_status.num_pfault = 2;
+    //ec_status.array_pfault[0] = 0;
+    //ec_status.array_pfault[1] = 1;
+    //ec_simple_test(&ec_status);
+ 
+    //表示：有1个数据失效节点，节点标号为第1个<起始编号为0>；有一个校验节点失效，节点编号为第0个<其实编号为0>
+    //特别：由于校验数是2，最大的失效节点数是2
+    //ec_status.dfault_num = 1;
+    //ec_status.dfault_array[0] = 1;    
+    //ec_status.num_pfault = 1;
+    //ec_status.array_pfault[0] = 0;
+    /*--------测试程序：检查数据恢复情况-------*/
+    //ec_simple_test(&ec_status);
+   
 #else
-
+    /*穷举检查单校验点:所有异常情况下数据恢复*/
     for (i = 2; i <= MAX_DATA_UNIT; i++)
     {        
         ec_partiy_is_1_check(i, 1);
     }
 
+    /*穷举检查2个校验点:所有异常情况下数据恢复*/
     for (i = 3; i <= MAX_DATA_UNIT; i++)
     {        
         ec_partiy_is_2_check(i, 2);
     }
     
+    /*穷举检查3个校验点:所有异常情况下数据恢复*/
     for (i = 4; i <= MAX_DATA_UNIT; i++)
     {        
        ec_partiy_is_3_check(i, 3);
     }
 
+    /*穷举检查4个校验点:所有异常情况下数据恢复*/
     for (i = 5; i <= MAX_DATA_UNIT; i++)
     {        
         ec_partiy_is_4_check(i, 4);
