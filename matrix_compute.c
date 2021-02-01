@@ -1,14 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <syslog.h>
 #include "matrix_compute.h"
 
 
 //{if (test) assert(0);}
+//#define ec_log(fmt, ...) {\
+//    syslog(3, "%s_%d:" fmt ".\n", __FUNCTION__, __LINE__,  ##__VA_ARGS__); \
+//}
+
 #define ec_log(fmt, ...) {\
-    syslog(3, "%s_%d:" fmt ".\n", __FUNCTION__, __LINE__,  ##__VA_ARGS__); \
+    printf("%s_%d:" fmt ".\n", __FUNCTION__, __LINE__,  ##__VA_ARGS__); \
 }
+
 
 #define ec_malloc(size)                 malloc(size)
 #define ec_free(prt)                    free(prt)
@@ -830,7 +835,7 @@ void ec_xor_orig_and_dst_data(ywb_uint8_t *orig, ywb_uint8_t *dst, ywb_uint64_t 
     EC_ASSERT(data_len < sizeof(ywb_uint64_t));
     EC_ASSERT(0 != data_len%sizeof(ywb_uint64_t));
 
-#if SIMPLE_TEST
+#if 1
     EC_ASSERT(0 != (change_length%8));
     for (i = 0; i < change_length ; i+=8)
     {    
@@ -842,6 +847,32 @@ void ec_xor_orig_and_dst_data(ywb_uint8_t *orig, ywb_uint8_t *dst, ywb_uint64_t 
         EC_XOR_TEMPLETE(p_data_src[i+5], p_data_dst[i+5], p_data_src[i+5]);
         EC_XOR_TEMPLETE(p_data_src[i+6], p_data_dst[i+6], p_data_src[i+6]);
         EC_XOR_TEMPLETE(p_data_src[i+7], p_data_dst[i+7], p_data_src[i+7]);
+        
+        //EC_XOR_TEMPLETE(p_data_src[i+8], p_data_dst[i+8], p_data_src[i+8]);
+        //EC_XOR_TEMPLETE(p_data_src[i+9], p_data_dst[i+9], p_data_src[i+9]);
+        //EC_XOR_TEMPLETE(p_data_src[i+10], p_data_dst[i+10], p_data_src[i+10]);
+        //EC_XOR_TEMPLETE(p_data_src[i+11], p_data_dst[i+11], p_data_src[i+11]);
+        //EC_XOR_TEMPLETE(p_data_src[i+12], p_data_dst[i+12], p_data_src[i+12]);
+        //EC_XOR_TEMPLETE(p_data_src[i+13], p_data_dst[i+13], p_data_src[i+13]);
+        //EC_XOR_TEMPLETE(p_data_src[i+14], p_data_dst[i+14], p_data_src[i+14]);
+        //EC_XOR_TEMPLETE(p_data_src[i+15], p_data_dst[i+15], p_data_src[i+15]);
+        
+        //EC_XOR_TEMPLETE(p_data_src[i+16], p_data_dst[i+16], p_data_src[i+16]);
+        //EC_XOR_TEMPLETE(p_data_src[i+17], p_data_dst[i+17], p_data_src[i+17]);
+        //EC_XOR_TEMPLETE(p_data_src[i+18], p_data_dst[i+18], p_data_src[i+18]);
+        //EC_XOR_TEMPLETE(p_data_src[i+19], p_data_dst[i+19], p_data_src[i+19]);
+        //EC_XOR_TEMPLETE(p_data_src[i+20], p_data_dst[i+20], p_data_src[i+20]);
+        //EC_XOR_TEMPLETE(p_data_src[i+21], p_data_dst[i+21], p_data_src[i+21]);
+        //EC_XOR_TEMPLETE(p_data_src[i+22], p_data_dst[i+22], p_data_src[i+22]);
+        //EC_XOR_TEMPLETE(p_data_src[i+23], p_data_dst[i+23], p_data_src[i+23]);
+	    //EC_XOR_TEMPLETE(p_data_src[i+24], p_data_dst[i+24], p_data_src[i+24]);
+        //EC_XOR_TEMPLETE(p_data_src[i+25], p_data_dst[i+25], p_data_src[i+25]);
+        //EC_XOR_TEMPLETE(p_data_src[i+26], p_data_dst[i+26], p_data_src[i+26]);
+        //EC_XOR_TEMPLETE(p_data_src[i+27], p_data_dst[i+27], p_data_src[i+27]);
+        //EC_XOR_TEMPLETE(p_data_src[i+28], p_data_dst[i+28], p_data_src[i+28]);
+        //EC_XOR_TEMPLETE(p_data_src[i+29], p_data_dst[i+29], p_data_src[i+29]);
+        //EC_XOR_TEMPLETE(p_data_src[i+30], p_data_dst[i+30], p_data_src[i+30]);
+        //EC_XOR_TEMPLETE(p_data_src[i+31], p_data_dst[i+31], p_data_src[i+31]);
     }
 #else
     for (i = 0; i < change_length ; i++)
@@ -892,7 +923,7 @@ void ec_get_recover_data_by_recover_node(ec_status_t *ec_status, ec_recover_node
     EC_ASSERT(recover_node->bitmap_len != (ec_status->config.count_pu + ec_status->config.du_count)*BIT_WIDTH);
 
     memcpy(&node, recover_node, sizeof(ec_recover_node_t));
-
+#if 0
     for (i = 0; i < BIT_WIDTH; i++)
     {
         pthread_var[i].bitmap_len = node.bitmap_len;
@@ -907,8 +938,9 @@ void ec_get_recover_data_by_recover_node(ec_status_t *ec_status, ec_recover_node
     {
         pthread_join(thread_tid[i], NULL);
     }
+#endif
 
-#if 0    
+#if 1    
     for (i = 0 ; i < node.bitmap_len; i++)
     {
         dst_data = orig_data + i*EC_PRE_SUB_UNIT;
@@ -931,11 +963,9 @@ void ec_get_recover_data_by_recover_node(ec_status_t *ec_status, ec_recover_node
 /*根据恢复矩阵获取丢失数据*/
 int ec_get_recover_data_by_recover_table(ec_status_t *ec_status, ec_recover_table_t *recover_table, 
                                                         ywb_uint8_t *orig_data, ywb_uint64_t data_len,
-                                                        ywb_uint8_t **recover_data, ywb_uint64_t *recover_len)
+                                                        ywb_uint8_t *recover_data, ywb_uint64_t recover_len)
 {
     int ret = EC_OK;    
-    ywb_uint8_t *temp_data = NULL;
-    ywb_uint64_t temp_len = 0; 
     ywb_uint32_t i = 0;
     ywb_uint64_t data_skip = 0;
 
@@ -945,28 +975,16 @@ int ec_get_recover_data_by_recover_table(ec_status_t *ec_status, ec_recover_tabl
     EC_ASSERT(NULL == recover_data);
     EC_ASSERT(data_len != ((ec_status->config.count_pu + ec_status->config.du_count) * BIT_WIDTH * EC_PRE_SUB_UNIT));
     
-    temp_len = recover_table->recover_num * BIT_WIDTH * EC_PRE_SUB_UNIT;
-    temp_data = ec_malloc(temp_len);
-    if (NULL == temp_data)
-    {
-        ret = EC_ERROR_CODE_NO_MEMORY;
-    
-        ec_log("Failed to malloc memory when get recover data, recover_len[%llu]", temp_len);
-
-        goto abort;        
-    }
-    memset(temp_data, 0x0, temp_len);
-
     for (i = 0; i < recover_table->recover_num; i++)
     {
         data_skip =  (i * BIT_WIDTH * EC_PRE_SUB_UNIT);
         ec_get_recover_data_by_recover_node(ec_status, &recover_table->recover_node[i],
                                             orig_data, data_len,
-                                            temp_data + data_skip, BIT_WIDTH * EC_PRE_SUB_UNIT);  
+                                            recover_data + data_skip, BIT_WIDTH * EC_PRE_SUB_UNIT);  
     }    
 
-    *recover_data = temp_data;
-    *recover_len = temp_len;
+    //*recover_data = temp_data;
+    //*recover_len = temp_len;
 
 abort:
 
@@ -980,8 +998,6 @@ int ec_create_parity_data_by_recover_table(ywb_uint32_t n, ywb_uint32_t m,
     ywb_uint32_t i = 0;
     ec_status_t ec_status;
     ec_recover_table_t recover_table;
-    ywb_uint8_t *recover_data = NULL;
-    ywb_uint64_t recover_len = NULL;
     ywb_uint64_t src_data_skip = 0;
     ywb_uint64_t recov_data_skip = 0;
 
@@ -1005,9 +1021,24 @@ int ec_create_parity_data_by_recover_table(ywb_uint32_t n, ywb_uint32_t m,
     ret = ec_get_recover_table_by_ec_status(&ec_status, &recover_table);
     EC_ASSERT(EC_OK != ret);
 
+
+    ywb_uint8_t *recover_data = NULL;
+    ywb_uint64_t recover_len = 0; 
+    recover_len = recover_table.recover_num * BIT_WIDTH * EC_PRE_SUB_UNIT;
+    recover_data = ec_malloc(recover_len);
+    if (NULL == recover_data)
+    {
+        ret = EC_ERROR_CODE_NO_MEMORY;
+    
+        ec_log("Failed to malloc memory when get recover data, recover_len[%llu]", recover_len);
+
+        return ret;        
+    }
+    memset(recover_data, 0x0, recover_len);
+
     ret = ec_get_recover_data_by_recover_table(&ec_status, &recover_table,
                                                test_data, data_len, 
-                                               &recover_data, &recover_len);
+                                               recover_data, recover_len);
     if (EC_OK != ret)
     {
         ec_log("Failed to get recover data");
@@ -1111,8 +1142,6 @@ void ec_exhaustion_n_m_fault_is_equal_1(ywb_uint32_t n , ywb_uint32_t m,
     ywb_uint32_t index = 0;
     ec_status_t ec_status;
     ec_recover_table_t recover_table;
-    ywb_uint8_t *recover_data = NULL;
-    ywb_uint64_t recover_len = 0;
     ywb_uint64_t data_skip = 0;
     ywb_uint64_t recover_skip = 0;
 
@@ -1136,8 +1165,22 @@ void ec_exhaustion_n_m_fault_is_equal_1(ywb_uint32_t n , ywb_uint32_t m,
         
         EC_ASSERT(1 != recover_table.recover_num);        
         ec_printf_recover_table(&ec_status, &recover_table);
+
+        ywb_uint8_t *recover_data = NULL;
+        ywb_uint64_t recover_len = 0; 
+        recover_len = recover_table.recover_num * BIT_WIDTH * EC_PRE_SUB_UNIT;
+        recover_data = ec_malloc(recover_len);
+        if (NULL == recover_data)
+        {
+            ret = EC_ERROR_CODE_NO_MEMORY;
+        
+            ec_log("Failed to malloc memory when get recover data, recover_len[%llu]", recover_len);
+        
+            return;        
+        }
+        memset(recover_data, 0x0, recover_len);    
         ret = ec_get_recover_data_by_recover_table(&ec_status, &recover_table,
-                                                   data, data_len, &recover_data, &recover_len);
+                                                   data, data_len, recover_data, recover_len);
         EC_ASSERT(EC_OK != ret);
         
         for (index = 0; index < recover_table.recover_num; index++)
@@ -1173,8 +1216,6 @@ void ec_exhaustion_n_m_fault_less_than_equal_2(ywb_uint32_t n , ywb_uint32_t m,
     ywb_uint32_t index = 0;
     ec_status_t ec_status;
     ec_recover_table_t recover_table;
-    ywb_uint8_t *recover_data = NULL;
-    ywb_uint64_t recover_len = 0;
     ywb_uint64_t data_skip = 0;
     ywb_uint64_t recover_skip = 0;
 
@@ -1205,8 +1246,22 @@ void ec_exhaustion_n_m_fault_less_than_equal_2(ywb_uint32_t n , ywb_uint32_t m,
             
             EC_ASSERT(2 != recover_table.recover_num);
             ec_printf_recover_table(&ec_status, &recover_table);
+
+            ywb_uint8_t *recover_data = NULL;
+            ywb_uint64_t recover_len = 0; 
+            recover_len = recover_table.recover_num * BIT_WIDTH * EC_PRE_SUB_UNIT;
+            recover_data = ec_malloc(recover_len);
+            if (NULL == recover_data)
+            {
+                ret = EC_ERROR_CODE_NO_MEMORY;
+            
+                ec_log("Failed to malloc memory when get recover data, recover_len[%llu]", recover_len);
+            
+                return;        
+            }
+            memset(recover_data, 0x0, recover_len);    
             ret = ec_get_recover_data_by_recover_table(&ec_status, &recover_table,
-                                                       data, data_len, &recover_data, &recover_len);
+                                                       data, data_len, recover_data, recover_len);
             EC_ASSERT(EC_OK != ret);
             
             for (index = 0; index < recover_table.recover_num; index++)
@@ -1246,8 +1301,6 @@ void ec_exhaustion_n_m_fault_less_than_equal_3(ywb_uint32_t n , ywb_uint32_t m,
     ywb_uint32_t index = 0;
     ec_status_t ec_status;
     ec_recover_table_t recover_table;
-    ywb_uint8_t *recover_data = NULL;
-    ywb_uint64_t recover_len = 0;
     ywb_uint64_t data_skip = 0;
     ywb_uint64_t recover_skip = 0;
     
@@ -1285,8 +1338,22 @@ void ec_exhaustion_n_m_fault_less_than_equal_3(ywb_uint32_t n , ywb_uint32_t m,
                 
                 EC_ASSERT(3 != recover_table.recover_num);
                 ec_printf_recover_table(&ec_status, &recover_table);
+
+                ywb_uint8_t *recover_data = NULL;
+                ywb_uint64_t recover_len = 0; 
+                recover_len = recover_table.recover_num * BIT_WIDTH * EC_PRE_SUB_UNIT;
+                recover_data = ec_malloc(recover_len);
+                if (NULL == recover_data)
+                {
+                    ret = EC_ERROR_CODE_NO_MEMORY;
+                
+                    ec_log("Failed to malloc memory when get recover data, recover_len[%llu]", recover_len);
+                
+                    return;        
+                }
+                memset(recover_data, 0x0, recover_len);  
                 ret = ec_get_recover_data_by_recover_table(&ec_status, &recover_table,
-                                                           data, data_len, &recover_data, &recover_len);
+                                                           data, data_len, recover_data,recover_len);
                 EC_ASSERT(EC_OK != ret);
 
                 for (index = 0; index < recover_table.recover_num; index++)
@@ -1324,12 +1391,10 @@ void ec_exhaustion_n_m_fault_less_than_equal_4(ywb_uint32_t n , ywb_uint32_t m,
     ywb_uint32_t i = 0;
     ywb_uint32_t j = 0;
     ywb_uint32_t k = 0;
-    ywb_uint32_t l = 0;x
+    ywb_uint32_t l = 0;
     ywb_uint32_t index = 0;
     ec_status_t ec_status;
     ec_recover_table_t recover_table;
-    ywb_uint8_t *recover_data = NULL;
-    ywb_uint64_t recover_len = 0;
     ywb_uint64_t data_skip = 0;
     ywb_uint64_t recover_skip = 0;
 
@@ -1375,8 +1440,22 @@ void ec_exhaustion_n_m_fault_less_than_equal_4(ywb_uint32_t n , ywb_uint32_t m,
                     
                     EC_ASSERT(4 != recover_table.recover_num);                    
                     ec_printf_recover_table(&ec_status, &recover_table);
+
+                    ywb_uint8_t *recover_data = NULL;
+                    ywb_uint64_t recover_len = 0; 
+                    recover_len = recover_table.recover_num * BIT_WIDTH * EC_PRE_SUB_UNIT;
+                    recover_data = ec_malloc(recover_len);
+                    if (NULL == recover_data)
+                    {
+                        ret = EC_ERROR_CODE_NO_MEMORY;
+                    
+                        ec_log("Failed to malloc memory when get recover data, recover_len[%llu]", recover_len);
+                    
+                        return;        
+                    }
+                    memset(recover_data, 0x0, recover_len);  
                     ret = ec_get_recover_data_by_recover_table(&ec_status, &recover_table,
-                                                               data, data_len, &recover_data, &recover_len);
+                                                               data, data_len, recover_data, recover_len);
                     EC_ASSERT(EC_OK != ret);
                     
                     for (index = 0; index < recover_table.recover_num; index++)
@@ -1524,8 +1603,6 @@ void ec_simple_test(ec_status_t *ec_status)
     ywb_uint32_t m = ec_status->config.count_pu; 
     ywb_uint32_t index = 0;
     ec_recover_table_t recover_table;
-    ywb_uint8_t *recover_data = NULL;
-    ywb_uint64_t recover_len = 0;
     ywb_uint64_t data_skip = 0;
     ywb_uint64_t recover_skip = 0;
     struct timeval time_start, time_end;
@@ -1547,10 +1624,26 @@ void ec_simple_test(ec_status_t *ec_status)
 
     ec_printf_recover_table(ec_status, &recover_table);
 
+
+    ywb_uint8_t *recover_data = NULL;
+    ywb_uint64_t recover_len = 0; 
+    recover_len = recover_table.recover_num * BIT_WIDTH * EC_PRE_SUB_UNIT;
+    recover_data = ec_malloc(recover_len);
+    if (NULL == recover_data)
+    {
+        ret = EC_ERROR_CODE_NO_MEMORY;
+    
+        ec_log("Failed to malloc memory when get recover data, recover_len[%llu]", recover_len);
+
+        return;        
+    }
+    memset(recover_data, 0x0, recover_len);
+    
+
     gettimeofday(&time_start, &time_zone);
 
     ret = ec_get_recover_data_by_recover_table(ec_status, &recover_table,
-                                               data, data_len, &recover_data, &recover_len);
+                                               data, data_len, recover_data, recover_len);
     EC_ASSERT(EC_OK != ret);
 
     gettimeofday(&time_end, &time_zone);
@@ -1584,7 +1677,7 @@ int main(int argc, char **argv)
     int ret = EC_OK;
     ywb_uint32_t i = 0; 
     
-#if SIMPLE_TEST
+#if 0
     ec_status_t ec_status;
     
     memset(&ec_status, 0x0, sizeof(ec_status_t));
@@ -1596,11 +1689,11 @@ int main(int argc, char **argv)
 
     //表示：有两个数据失效节点，节点标号为第1个和第2个<起始编号为0>
     //特别：由于校验数是2，最大的失效节点数是2
-    //ec_status.dfault_num = 2;
-    //ec_status.dfault_array[0] = 1;    
-    //ec_status.dfault_array[1] = 2;
+    ec_status.dfault_num = 2;
+    ec_status.dfault_array[0] = 1;    
+    ec_status.dfault_array[1] = 2;
     /*--------测试程序：检查数据恢复情况-------*/
-    //ec_simple_test(&ec_status);
+    ec_simple_test(&ec_status);
 
     //表示：有两个校验失效节点，节点标号为第0个和第1个<起始编号为0>
     //特别：其实就是计算校验节点
